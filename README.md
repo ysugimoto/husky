@@ -38,4 +38,19 @@ func main() {
 
 That's all.
 
+### Configuration
 
+Make `config.yml` at current directory (e.g main.go) and write:
+
+```
+# listen address
+host: 127.0.0.1
+
+# listen port
+port: 8888
+
+# listen path
+path: /
+```
+
+Will listen `127.0.0.1:8888`.
