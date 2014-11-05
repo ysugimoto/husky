@@ -14,14 +14,14 @@ type Router struct {
 type RouterInfo struct {
 	Method  []byte
 	Route   string
-	Handler HandlerFunc
+	Handler HuskyHandler
 }
 
 func NewRouter() *Router {
 	return &Router{}
 }
 
-func (r *Router) Bind(method, route string, handler HandlerFunc) {
+func (r *Router) Bind(method, route string, handler HuskyHandler) {
 	info := &RouterInfo{
 		Method:  bytes.ToUpper([]byte(method)),
 		Route:   route,
@@ -43,9 +43,8 @@ func (r *Router) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	}
 
 	log.Printf("%s %s\n", req.Method, requestURL.Path)
-	response := Response{res}
-	request := &Request{req}
-	dispatcher.Handler(response, request)
+	dispatch := NewDispatcher(res, req)
+	dispatcher.Handler(dispatch)
 }
 
 func (r *Router) Send404(res http.ResponseWriter, req *http.Request) {
@@ -55,9 +54,8 @@ func (r *Router) Send404(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	response := Response{res}
-	request := &Request{req}
-	dispatcher.Handler(response, request)
+	dispatch := NewDispatcher(res, req)
+	dispatcher.Handler(dispatch)
 }
 
 func (r *Router) FindDispatcher(method, path string) (dispatcher *RouterInfo, notFound bool) {
@@ -83,11 +81,4 @@ func (r *Router) SendDefault404(res http.ResponseWriter, req *http.Request) {
 	res.WriteHeader(404)
 	res.Header().Set("Content-Type", "text/plain")
 	res.Write([]byte("Not found."))
-}
-
-func (r *Router) Dispatch(handlePath string) {
-	if handlePath == "" {
-		handlePath = "/"
-	}
-	http.HandleFunc(handlePath, r.ServeHTTP)
 }

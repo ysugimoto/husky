@@ -1,17 +1,8 @@
 package husky
 
 import (
-	"net/http"
 	"strings"
 )
-
-type Request struct {
-	*http.Request
-}
-
-type Response struct {
-	http.ResponseWriter
-}
 
 type app struct {
 	Router *Router
@@ -27,7 +18,7 @@ func NewApp() *app {
 	}
 }
 
-type HandlerFunc func(Response, *Request)
+type HuskyHandler func(dispatcher *Dispatcher)
 
 func (app *app) joinPath(path string) string {
 	p, _ := app.Config.Get("path")
@@ -36,23 +27,23 @@ func (app *app) joinPath(path string) string {
 	return "/" + strings.TrimLeft(joined, "/")
 }
 
-func (app *app) Post(route string, handler HandlerFunc) {
+func (app *app) Post(route string, handler HuskyHandler) {
 	app.Router.Bind("POST", app.joinPath(route), handler)
 }
 
-func (app *app) Get(route string, handler HandlerFunc) {
+func (app *app) Get(route string, handler HuskyHandler) {
 	app.Router.Bind("GET", app.joinPath(route), handler)
 }
 
-func (app *app) Put(route string, handler HandlerFunc) {
+func (app *app) Put(route string, handler HuskyHandler) {
 	app.Router.Bind("PUT", app.joinPath(route), handler)
 }
 
-func (app *app) Delete(route string, handler HandlerFunc) {
+func (app *app) Delete(route string, handler HuskyHandler) {
 	app.Router.Bind("DELETE", app.joinPath(route), handler)
 }
 
-func (app *app) Notfound(route string, handler HandlerFunc) {
+func (app *app) Notfound(route string, handler HuskyHandler) {
 	app.Router.Bind("404", app.joinPath(route), handler)
 }
 
