@@ -26,8 +26,10 @@ func main() {
     app := husky.NewApp()
 
     // bind routes as you need
-    app.Get("/", func(resp husky.Response req *husky.Request) {
-        // do something
+    app.Get("/", func(disp *husky.Dispatcher) {
+        disp.Output.SetStatus(200)
+        disp.Output.SetHeader("Content-Type", "text/plain")
+        disp.Output.Send("Hello, Husky!")
     });
     ...
 
@@ -40,7 +42,7 @@ That's all.
 
 ### Configuration
 
-Make `config.yml` at current directory (e.g main.go) and write:
+Make `config.yml` at current directory (e.g main.go) to override config and write:
 
 ```
 # listen address
