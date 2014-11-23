@@ -1,7 +1,6 @@
 package husky
 
 import (
-	"fmt"
 	"strings"
 )
 
