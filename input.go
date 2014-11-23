@@ -26,6 +26,10 @@ func (i *Input) initialize() {
 
 }
 
+func (i *input) GetRequest() *http.Request {
+	return i.req
+}
+
 func (i *Input) Get(key string) string {
 	var val string
 
