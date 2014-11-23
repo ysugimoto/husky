@@ -78,7 +78,7 @@ func (r *Router) FindDispatcher(method, path string) (dispatcher *RouterInfo, no
 }
 
 func (r *Router) SendDefault404(res http.ResponseWriter, req *http.Request) {
-	res.WriteHeader(404)
 	res.Header().Set("Content-Type", "text/plain")
+	res.WriteHeader(404)
 	res.Write([]byte("Not found."))
 }
