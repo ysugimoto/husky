@@ -26,7 +26,7 @@ func (i *Input) initialize() {
 
 }
 
-func (i *input) GetRequest() *http.Request {
+func (i *Input) GetRequest() *http.Request {
 	return i.req
 }
 
