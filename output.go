@@ -46,7 +46,7 @@ func (o *Output) SendHeader() *Output {
 			header.Set(key, value)
 		}
 
-		header.WriteHeader(o.statusCode)
+		o.resp.WriteHeader(o.statusCode)
 	}
 
 	return o
