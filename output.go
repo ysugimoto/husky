@@ -35,7 +35,6 @@ func (o *Output) SetHeader(key, value string) *Output {
 	o.headers[key] = value
 
 	return o
-	o.resp.Header().Set(key, value)
 }
 
 func (o *Output) SendHeader() *Output {
