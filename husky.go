@@ -51,10 +51,11 @@ func (app *app) Notfound(route string, handler HuskyHandler) {
 
 func (app *app) AcceptCORS() {
 	app.Router.Bind("OPTIONS", "/", func(d *Dispatcher) {
+		d.Output.SetStatus(204)
 		d.Output.SetHeader("Access-Control-Allow-Origin", "*")
 		d.Output.SetHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
 		d.Output.SetHeader("Access-Control-Allow-Headers", "X-Requested-With")
-		d.Output.SetStatus(204)
+		d.Output.SendHeader()
 	})
 }
 
