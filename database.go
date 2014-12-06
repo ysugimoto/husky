@@ -17,7 +17,7 @@ type Database struct {
 	where     []string
 	fields    []string
 	bind      []interface{}
-	enableLog true
+	enableLog bool
 	queryLog  []string
 }
 
