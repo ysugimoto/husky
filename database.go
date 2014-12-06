@@ -108,7 +108,7 @@ func (d *Database) Update(table string, values map[string]interface{}) (result s
 }
 
 func (d *Database) buildSelectQuery(table string) (query string) {
-	if !whileChar.MatchString(c) {
+	if !whileChar.MatchString(table) {
 		panic("Invalid table name specified.")
 	}
 
