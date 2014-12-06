@@ -5,16 +5,18 @@ import (
 )
 
 type app struct {
-	Router *Router
-	Config *Config
-	Server *Server
+	Router  *Router
+	Config  *Config
+	Server  *Server
+	Command *Arguments
 }
 
 func NewApp() *app {
 	return &app{
-		Router: NewRouter(),
-		Config: NewConfig(),
-		Server: NewServer(),
+		Router:  NewRouter(),
+		Config:  NewConfig(),
+		Server:  NewServer(),
+		Command: NewArguments(),
 	}
 }
 
