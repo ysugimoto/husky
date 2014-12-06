@@ -18,7 +18,14 @@ func NewConfig() *Config {
 	configFile := path.Join(cwd, "config.yml")
 
 	if _, err := os.Stat(configFile); err != nil {
-		panic(fmt.Sprintf("%v", err))
+		// default config
+		return &Config{
+			config: map[string]interface{}{
+				"host": "127.0.0.1",
+				"port": 8888,
+				"path": "/",
+			},
+		}
 	}
 
 	yamlConfig, err := ioutil.ReadFile(configFile)
