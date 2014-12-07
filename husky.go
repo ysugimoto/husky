@@ -49,12 +49,12 @@ func (app *app) Notfound(route string, handler HuskyHandler) {
 	app.Router.Bind("404", app.joinPath(route), handler)
 }
 
-func (app *app) AcceptCORS() {
+func (app *app) AcceptCORS(extraHeaders []string) {
 	app.Router.Bind("OPTIONS", "/", func(d *Dispatcher) {
 		d.Output.SetStatus(204)
 		d.Output.SetHeader("Access-Control-Allow-Origin", "*")
 		d.Output.SetHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
-		d.Output.SetHeader("Access-Control-Allow-Headers", "X-Requested-With")
+		d.Output.SetHeader("Access-Control-Allow-Headers", strings.Join(extraHeaders, ","))
 		d.Output.SendHeader()
 	})
 }
