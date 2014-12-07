@@ -83,6 +83,17 @@ func (d *Database) QueryRow(query string, bind ...interface{}) (rows *sql.Row) {
 	}
 }
 
+func (d *Database) Select(columns ...string) *Database {
+	for _, c := range columns {
+		if !whiteChar.MatchString(c) {
+			panic("Invalid columns name specified.")
+		}
+		d.fields = append(d.fields, c)
+	}
+
+	return d
+}
+
 func (d *Database) Limit(limit int) *Database {
 	d.limit = limit
 
