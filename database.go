@@ -48,7 +48,7 @@ func (d *Database) TransCommit() {
 	}
 }
 
-func (d *Database) TransRollBack() {
+func (d *Database) TransRollback() {
 	if d.trans != nil {
 		d.trans.Rollback()
 		d.trans = nil
