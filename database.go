@@ -55,7 +55,7 @@ func (d *Database) TransRollback() {
 	}
 }
 
-func (d *Database) isTrans() bool {
+func (d *Database) IsTrans() bool {
 	if d.trans != nil {
 		return true
 	}
@@ -67,15 +67,20 @@ func (d *Database) EnableLog(enable bool) {
 	d.enableLog = enable
 }
 
-func (d *Database) Select(columns ...string) *Database {
-	for _, c := range columns {
-		if !whiteChar.MatchString(c) {
-			panic("Invalid columns name specified.")
-		}
-		d.fields = append(d.fields, c)
+func (d *Database) Query(query string, bind ...interface{}) (rows *sql.Rows, err error) {
+	if d.IsTrans() {
+		return d.trans.Query(query, bind...)
+	} else {
+		return d.conn.Query(query, bind...)
 	}
+}
 
-	return d
+func (d *Database) QueryRow(query string, bind ...interface{}) (rows *sql.Row) {
+	if d.IsTrans() {
+		return d.trans.QueryRow(query, bind...)
+	} else {
+		return d.conn.QueryRow(query, bind...)
+	}
 }
 
 func (d *Database) Limit(limit int) *Database {
@@ -103,13 +108,13 @@ func (d *Database) Get(table string) (rows *sql.Rows, err error) {
 
 	d.log(query, d.bind)
 	if len(d.bind) > 0 {
-		if d.isTrans() {
+		if d.IsTrans() {
 			return d.trans.Query(query, d.bind...)
 		} else {
 			return d.conn.Query(query, d.bind...)
 		}
 	} else {
-		if d.isTrans() {
+		if d.IsTrans() {
 			return d.trans.Query(query)
 		} else {
 			return d.conn.Query(query)
@@ -123,13 +128,13 @@ func (d *Database) GetRow(table string) (row *sql.Row) {
 
 	d.log(query, d.bind)
 	if len(d.bind) > 0 {
-		if d.isTrans() {
+		if d.IsTrans() {
 			return d.trans.QueryRow(query, d.bind...)
 		} else {
 			return d.conn.QueryRow(query, d.bind...)
 		}
 	} else {
-		if d.isTrans() {
+		if d.IsTrans() {
 			return d.trans.QueryRow(query)
 		} else {
 			return d.conn.QueryRow(query)
@@ -142,7 +147,7 @@ func (d *Database) Insert(table string, values map[string]interface{}) (result s
 	defer d.clear()
 
 	d.log(query, d.bind)
-	if d.isTrans() {
+	if d.IsTrans() {
 		return d.trans.Exec(query, bind...)
 	} else {
 		return d.conn.Exec(query, bind...)
@@ -154,7 +159,7 @@ func (d *Database) Update(table string, values map[string]interface{}) (result s
 	defer d.clear()
 
 	d.log(query, d.bind)
-	if d.isTrans() {
+	if d.IsTrans() {
 		return d.trans.Exec(query, bind...)
 	} else {
 		return d.conn.Exec(query, bind...)
