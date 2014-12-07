@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-var whileChar = regexp.MustCompile("^[0-9a-zA-Z_-.]+$")
+var whiteChar = regexp.MustCompile("^[0-9a-zA-Z_\\-\\.]+$")
 
 type Database struct {
 	conn      *sql.DB
@@ -69,7 +69,7 @@ func (d *Database) EnableLog(enable bool) {
 
 func (d *Database) Select(columns ...string) *Database {
 	for _, c := range columns {
-		if !whileChar.MatchString(c) {
+		if !whiteChar.MatchString(c) {
 			panic("Invalid columns name specified.")
 		}
 		d.fields = append(d.fields, c)
@@ -162,7 +162,7 @@ func (d *Database) Update(table string, values map[string]interface{}) (result s
 }
 
 func (d *Database) buildSelectQuery(table string) (query string) {
-	if !whileChar.MatchString(table) {
+	if !whiteChar.MatchString(table) {
 		panic("Invalid table name specified.")
 	}
 
