@@ -12,6 +12,7 @@ var whileChar = regexp.MustCompile("^[0-9a-zA-Z_-.]+$")
 
 type Database struct {
 	conn      *sql.DB
+	trans     *sql.Tx
 	limit     int
 	offset    int
 	where     []string
@@ -31,6 +32,35 @@ func NewDb(dsn string) *Database {
 
 	d.conn = db
 	return d
+}
+
+func (d *Database) TransBegin() {
+	var err error
+	if d.trans, err = d.conn.Begin(); err != nil {
+		fmt.Printf("Transaction beginning Error: %s\n", err)
+	}
+}
+
+func (d *Database) TransCommit() {
+	if d.trans != nil {
+		d.trans.Commit()
+		d.trans = nil
+	}
+}
+
+func (d *Database) TransRollBack() {
+	if d.trans != nil {
+		d.trans.Rollback()
+		d.trans = nil
+	}
+}
+
+func (d *Database) isTrans() bool {
+	if d.trans != nil {
+		return true
+	}
+
+	return false
 }
 
 func (d *Database) EnableLog(enable bool) {
@@ -73,9 +103,17 @@ func (d *Database) Get(table string) (rows *sql.Rows, err error) {
 
 	d.log(query, d.bind)
 	if len(d.bind) > 0 {
-		return d.conn.Query(query, d.bind...)
+		if d.isTrans() {
+			return d.trans.Query(query, d.bind...)
+		} else {
+			return d.conn.Query(query, d.bind...)
+		}
 	} else {
-		return d.conn.Query(query)
+		if d.isTrans() {
+			return d.trans.Query(query)
+		} else {
+			return d.conn.Query(query)
+		}
 	}
 }
 
@@ -85,9 +123,17 @@ func (d *Database) GetRow(table string) (row *sql.Row) {
 
 	d.log(query, d.bind)
 	if len(d.bind) > 0 {
-		return d.conn.QueryRow(query, d.bind...)
+		if d.isTrans() {
+			return d.trans.QueryRow(query, d.bind...)
+		} else {
+			return d.conn.QueryRow(query, d.bind...)
+		}
 	} else {
-		return d.conn.QueryRow(query)
+		if d.isTrans() {
+			return d.trans.QueryRow(query)
+		} else {
+			return d.conn.QueryRow(query)
+		}
 	}
 }
 
@@ -96,7 +142,11 @@ func (d *Database) Insert(table string, values map[string]interface{}) (result s
 	defer d.clear()
 
 	d.log(query, d.bind)
-	return d.conn.Exec(query, bind...)
+	if d.isTrans() {
+		return d.trans.Exec(query, bind...)
+	} else {
+		return d.conn.Exec(query, bind...)
+	}
 }
 
 func (d *Database) Update(table string, values map[string]interface{}) (result sql.Result, err error) {
@@ -104,7 +154,11 @@ func (d *Database) Update(table string, values map[string]interface{}) (result s
 	defer d.clear()
 
 	d.log(query, d.bind)
-	return d.conn.Exec(query, bind...)
+	if d.isTrans() {
+		return d.trans.Exec(query, bind...)
+	} else {
+		return d.conn.Exec(query, bind...)
+	}
 }
 
 func (d *Database) buildSelectQuery(table string) (query string) {
