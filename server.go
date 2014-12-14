@@ -28,6 +28,9 @@ func (s *Server) Listen(config *Config, router *Router) {
 	bind := fmt.Sprintf("%s:%d", host, port)
 	fmt.Printf("Server Listen: %s\n", bind)
 	http.Handle(handlePath, router)
+	for _, ws := range router.WebSockets {
+		http.Handle(ws.Route, ws.Handler)
+	}
 	if err := http.ListenAndServe(bind, nil); err != nil {
 		panic(fmt.Sprintf("%v\n", err))
 	}

@@ -2,19 +2,26 @@ package husky
 
 import (
 	"bytes"
+	"golang.org/x/net/websocket"
 	"log"
 	"net/http"
 	"regexp"
 )
 
 type Router struct {
-	Routes []*RouterInfo
+	Routes     []*RouterInfo
+	WebSockets []*WebSocketInfo
 }
 
 type RouterInfo struct {
 	Method  []byte
 	Route   string
 	Handler HuskyHandler
+}
+
+type WebSocketInfo struct {
+	Route   string
+	Handler websocket.Handler
 }
 
 func NewRouter() *Router {
@@ -29,6 +36,15 @@ func (r *Router) Bind(method, route string, handler HuskyHandler) {
 	}
 
 	r.Routes = append(r.Routes, info)
+}
+
+func (r *Router) BindWebSocket(route string, handler HuskyWebSocketHandler) {
+	info := &WebSocketInfo{
+		Route:   route,
+		Handler: NewWebSocketHandler(handler),
+	}
+
+	r.WebSockets = append(r.WebSockets, info)
 }
 
 func (r *Router) ServeHTTP(res http.ResponseWriter, req *http.Request) {

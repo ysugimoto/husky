@@ -21,6 +21,7 @@ func NewApp() *app {
 }
 
 type HuskyHandler func(dispatcher *Dispatcher)
+type HuskyWebSocketHandler func(dispatcher *WebSocketDispatcher)
 
 func (app *app) joinPath(path string) string {
 	p, _ := app.Config.Get("path")
@@ -43,6 +44,10 @@ func (app *app) Put(route string, handler HuskyHandler) {
 
 func (app *app) Delete(route string, handler HuskyHandler) {
 	app.Router.Bind("DELETE", app.joinPath(route), handler)
+}
+
+func (app *app) WebSocket(route string, handler HuskyWebSocketHandler) {
+	app.Router.BindWebSocket(app.joinPath(route), handler)
 }
 
 func (app *app) Notfound(route string, handler HuskyHandler) {
