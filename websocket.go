@@ -14,8 +14,17 @@ type WebSocketManager struct {
 	clients map[string]*WebSocketDispatcher
 }
 
-func (wm *WebSocketManager) broadcast(message []byte) {
+func (wm *WebSocketManager) broadcast(message []byte, ignores ...string) {
 	for connId, dispatcher := range wm.clients {
+		canSend := true
+		for _, id := range ignores {
+			if dispatcher.Id == id {
+				canSend = false
+			}
+		}
+		if !canSend {
+			continue
+		}
 		if err := dispatcher.Send(message); err != nil {
 			log.Printf("[WebSocket] message send error to %s\n", connId)
 		}
@@ -29,6 +38,7 @@ type WebSocketDispatcher struct {
 	OnOpen    func()
 	OnClose   func()
 	isClosed  bool
+	manager   *WebSocketManager
 }
 
 func NewWebSocketDispatcher(ws *websocket.Conn) *WebSocketDispatcher {
@@ -39,6 +49,15 @@ func NewWebSocketDispatcher(ws *websocket.Conn) *WebSocketDispatcher {
 		Id:   id,
 		conn: ws,
 	}
+}
+
+func (w *WebSocketDispatcher) Broadcast(message []byte, ignores ...string) (err error) {
+	if w.isClosed {
+		return errors.New("Connection Closed")
+	}
+
+	w.manager.broadcast(message, ignores...)
+	return nil
 }
 
 func (w *WebSocketDispatcher) Send(message []byte) (err error) {
@@ -80,6 +99,7 @@ func NewWebSocketHandler(handler HuskyWebSocketHandler) websocket.Handler {
 
 	return websocket.Handler(func(ws *websocket.Conn) {
 		dispatcher := NewWebSocketDispatcher(ws)
+		dispatcher.manager = manager
 		id := dispatcher.Id
 
 		manager.clients[id] = dispatcher
